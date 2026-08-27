@@ -1,6 +1,6 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Register from './pages/RegisterCustomer'
+import RegisterCustomer from './pages/RegisterCustomer'
 import RegisterTechnician from './pages/RegisterTechnician'
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='register/customer' element={<Register />} />
+          <Route path='/' element={<RegisterCustomer />} />
           <Route path='register/technician' element={<RegisterTechnician/>}/>
         </Routes>
       </BrowserRouter>

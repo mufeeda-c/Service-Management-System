@@ -1,16 +1,35 @@
 import axios from 'axios';
 const api_url = 'http://127.0.0.1:8000';
 
-export async function registerCustomer(Todo) {
+export async function registerCustomer(userName, phone, email, password) {
     try {
         const payload = {
-            data: Todo
+            "role": "customer",
+            "phone": phone,
+            "email": email,
+            "username": userName,
+            "password": password
         }
-        console.log("create data",payload)
-        const res = await axios.post(`${api_url}`, {data:payload})
-        
-        const result = res.data;
-        console.log(result);
+        const res = await axios.post(`${api_url}`, payload )
+        const result = res;
+        return result;
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+export async function registerTechnician(userName, phone, email, password) {
+    try {
+        const payload = {
+            "role": "technician",
+            "phone": phone,
+            "email": email,
+            "username": userName,
+            "password": password
+        }
+        const res = await axios.post(`${api_url}`, payload )
+        const result = res;
         return result;
     } catch (error) {
         console.log(error);
