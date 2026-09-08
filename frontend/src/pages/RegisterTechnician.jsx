@@ -1,102 +1,337 @@
-import React from 'react'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { registerTechnician } from '../api/register'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { registerTechnician, fetchSkills } from '../api/register';
 
 const RegisterTechnician = () => {
-    const navigate = useNavigate()
-    const [userName, setUserName] = useState('')
-    const [phone, setPhone] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [userNameError, setUserNameError] = useState(false)
-    const [phoneError, setPhoneError] = useState(false)
-    const [emailError, setEmailError] = useState(false)
-    const [passwordError, setPasswordError] = useState(false)
-    const [userExist, setUserExist] = useState(false)
+
+    const navigate = useNavigate();
+
+    const [userName, setUserName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [skill, setSkill] = useState('');
+
+    const [userNameError, setUserNameError] = useState('');
+    const [phoneError, setPhoneError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [skillError, setSkillError] = useState('');
+
+    const [skills, setSkills] = useState([])
+
+    useEffect(() => {
+        async function getSkill() {
+            const skills = await fetchSkills()
+            setSkills(skills.data)
+        }
+        getSkill()
+    }, [])
 
     const handleSubmit = async (e) => {
-        setUserExist(false)
-        setUserNameError(false)
-        setPhoneError(false)
-        setEmailError(false)
-        setPasswordError(false)
-        e.preventDefault()
-        if (userName.trim() == "" || phone.trim() == "" || email.trim() == "" || password.trim() == "") {
-            if (userName.trim() == "") {
-                setUserNameError(true)
-            }
-            if (phone.trim() == 0) {
-                setPhoneError(true)
-            }
-            if (email.trim() == "") {
-                setEmailError(true)
-            }
-            if (password.trim() == "") {
-                setPasswordError(true)
-            }
-            return
-        } else {
-            const result = await registerTechnician(userName, phone, email, password)
-            console.log(result.data.message);
-            if(result.data.message=="user already exist"){
-                setUserExist(true)
-                return
-            }else{
-                navigate('/')
-            }
-            setUserName('')
-            setPhone('')
-            setEmail('')
-            setPassword('')
+
+        e.preventDefault();
+
+        // Clear previous errors
+        setUserNameError('');
+        setPhoneError('');
+        setEmailError('');
+        setPasswordError('');
+        setSkillError('')
+
+        let hasError = false;
+
+        // Frontend validation
+        if (userName.trim() === '') {
+            setUserNameError('Username required');
+            hasError = true;
         }
-    }
+
+        if (phone.trim() === '') {
+            setPhoneError('Phone number required');
+            hasError = true;
+        }
+
+        if (skill.trim()===''){
+            setSkillError('Skill required');
+            hasError=true
+        }
+
+        if (email.trim() === '') {
+            setEmailError('Email required');
+            hasError = true;
+        }
+
+        if (password.trim() === '') {
+            setPasswordError('Password required');
+            hasError = true;
+        }
+
+        if (hasError) {
+            return;
+        }
+
+        // API call
+        const result = await registerTechnician(
+            userName,
+            phone,
+            email,
+            password,
+            skill
+        );
+
+        console.log("Registration result:", result);
+
+        // Success
+        if (result.success) {
+
+            alert('Technician registered successfully');
+
+            setUserName('');
+            setPhone('');
+            setEmail('');
+            setPassword('');
+            setSkill('')
+
+            navigate('/login');
+
+            return;
+        }
+
+        // Backend errors
+        const errors = result.data;
+
+        if (errors?.username) {
+            setUserNameError(errors.username[0]);
+        }
+
+        if (errors?.email) {
+            setEmailError(errors.email[0]);
+        }
+
+        if (errors?.phone) {
+            setPhoneError(errors.phone[0]);
+        }
+
+        if (errors?.skill){
+            setSkillError(errors.skill[0])
+        }
+
+        if (errors?.password) {
+            setPasswordError(errors.password[0]);
+        }
+    };
+
+
     return (
-        <div className=' justify-items-center'>
-            <h1 className="text-3xl font-bold mt-8 ">
-                Register Here!
+        <div className="justify-items-center">
+
+            <h1 className="text-3xl font-bold mt-8">
+                Register as Technician
             </h1>
 
-            <form className="w-1/4 mx-auto m-12 border rounded-xl p-8">
+            <form
+                onSubmit={handleSubmit}
+                className="w-1/4 mx-auto m-12 border rounded-xl p-8"
+            >
+
+                {/* Username */}
                 <div className="mb-5">
-                    <label for="Username" className="block mb-2.5 text-sm font-medium text-heading">Your Username</label>
-                    <input onChange={(e) => setUserName(e.target.value)} type="text" id="Username" className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="John" required />
+
+                    <label
+                        htmlFor="username"
+                        className="block mb-2.5 text-sm font-medium text-heading"
+                    >
+                        Your Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        value={userName}
+                        onChange={(e) => {
+                            setUserName(e.target.value);
+                            setUserNameError('');
+                        }}
+                        className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                        placeholder="John"
+                    />
+
                     {userNameError && (
-                        <p className="text-red-500 text-sm mt-1">Username required</p>
+                        <p className="text-red-500 text-sm mt-1">
+                            {userNameError}
+                        </p>
                     )}
+
                 </div>
+
+
+                {/* Phone */}
                 <div className="mb-5">
-                    <label for="phone" className="block mb-2.5 text-sm font-medium text-heading">Your phone</label>
-                    <input type="number" id="phone" onChange={(e) => setPhone(e.target.value)} className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="9988456783" required />
+
+                    <label
+                        htmlFor="phone"
+                        className="block mb-2.5 text-sm font-medium text-heading"
+                    >
+                        Your Phone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="phone"
+                        value={phone}
+                        onChange={(e) => {
+                            setPhone(e.target.value);
+                            setPhoneError('');
+                        }}
+                        className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                        placeholder="9988456783"
+                    />
+
                     {phoneError && (
-                        <p className="text-red-500 text-sm mt-1">Phone Number required</p>
+                        <p className="text-red-500 text-sm mt-1">
+                            {phoneError}
+                        </p>
                     )}
+
                 </div>
+
+
+                {/* Email */}
                 <div className="mb-5">
-                    <label for="email" className="block mb-2.5 text-sm font-medium text-heading">Your email</label>
-                    <input type="email" id="email" onChange={(e) => setEmail(e.target.value)} className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="name@gmail.com" required />
+
+                    <label
+                        htmlFor="email"
+                        className="block mb-2.5 text-sm font-medium text-heading"
+                    >
+                        Your Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setEmailError('');
+                        }}
+                        className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                        placeholder="name@gmail.com"
+                    />
+
                     {emailError && (
-                        <p className="text-red-500 text-sm mt-1">Email required</p>
+                        <p className="text-red-500 text-sm mt-1">
+                            {emailError}
+                        </p>
                     )}
+
                 </div>
+
+                {/* skill */}
                 <div className="mb-5">
-                    <label for="password" className="block mb-2.5 text-sm font-medium text-heading">Your password</label>
-                    <input type="password" id="password" onChange={(e) => setPassword(e.target.value)} className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="••••••••" required />
-                    {passwordError && (
-                        <p className="text-red-500 text-sm mt-1">Password required</p>
+
+                    <label
+                        htmlFor="skill"
+                        className="block mb-2.5 text-sm font-medium text-heading"
+                    >
+                        Your skill/trade
+                    </label>
+
+                    <select id='skill' name='skill' onChange={(e) => {
+                        setSkill(e.target.value)
+                        setSkillError('')
+                    }
+                    } value={skill} className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                    >
+                        <option value="" disabled className='text-gray-400'>---Select your skill---</option>
+                        {skills.map((item) => (
+                            <option
+                                key={item.value}
+                                value={item.value}
+                            >
+                                {item.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    {skillError && (
+                        <p className="text-red-500 text-sm mt-1">
+                            {skillError}
+                        </p>
                     )}
+
                 </div>
-                <div className='mb-5 justify-items-end'>
-                    <a href="" onClick={() => navigate('/')}>Register as Customer</a>
+
+
+                {/* Password */}
+                <div className="mb-5">
+
+                    <label
+                        htmlFor="password"
+                        className="block mb-2.5 text-sm font-medium text-heading"
+                    >
+                        Your Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setPasswordError('');
+                        }}
+                        className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                        placeholder="••••••••"
+                    />
+
+                    {passwordError && (
+                        <p className="text-red-500 text-sm mt-1">
+                            {passwordError}
+                        </p>
+                    )}
+
                 </div>
-                <button type="submit" onClick={handleSubmit} className="  box-border border rounded-xl  focus:ring-brand-medium shadow-xs font-medium leading-5  text-sm px-4 py-2.5 focus:outline-none">Submit</button>
-                {userExist && (
-                    <p className="text-red-500 text-sm mt-1">User Already Exist</p>
-                )}
+
+
+                {/* Customer registration */}
+                <div className="mb-5 flex justify-end">
+
+                    <button
+                        type="button"
+                        onClick={() => navigate('/register/customer')}
+                        className="text-blue-600"
+                    >
+                        Register as Customer
+                    </button>
+
+                </div>
+
+
+                {/* Submit + Login */}
+                <div className="flex justify-between">
+
+                    <button
+                        type="submit"
+                        className="box-border border rounded-xl focus:ring-brand-medium shadow-xs font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none"
+                    >
+                        Submit
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate('/login')}
+                        className="mt-3 text-blue-600"
+                    >
+                        Already have an account?
+                    </button>
+
+                </div>
+
             </form>
 
         </div>
-    )
-}
+    );
+};
 
-export default RegisterTechnician
+export default RegisterTechnician;
