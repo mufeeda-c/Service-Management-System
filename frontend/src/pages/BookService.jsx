@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState ,useEffect} from 'react'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { book_service,logoutUser } from '../api/register'
+import { book_service, logoutUser ,fetchSkills} from '../api/register'
 
 const BookService = () => {
     const [description, setDescription] = useState('')
@@ -16,11 +16,23 @@ const BookService = () => {
     const [pincodeError, setPincodeError] = useState('')
     const [dateError, setDateError] = useState('')
 
+    const [skills, setSkills] = useState([])
+
+
     const navigate = useNavigate()
-const handleLogout = async () => {
+
+    useEffect(() => {
+            async function getSkill() {
+                const skills = await fetchSkills()
+                setSkills(skills.data)
+            }
+            getSkill()
+        }, [])
+    
+    const handleLogout = async () => {
         const result = await logoutUser();
-        console.log("logout result", result) 
-        if(result.success){
+        console.log("logout result", result)
+        if (result.success) {
             navigate('/login')
         }
     }
@@ -102,10 +114,15 @@ const handleLogout = async () => {
                                         setCategoryError('')
                                         setCategory(e.target.value)
                                     }} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'>
-                                        <option value=''>Choose a service</option>
-                                        <option value='service1'>Service 1</option>
-                                        <option value='service2'>Service 2</option>
-                                        <option value='service3'>Service 3</option>
+                                        <option value="" disabled className='text-gray-400'>---Select your skill---</option>
+                                        {skills.map((item) => (
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
+                                                {item.label}
+                                            </option>
+                                        ))}
                                     </select>
                                     {categoryError && <p className='text-red-500 text-sm'>{categoryError}</p>}
                                     <p className='text-gray-500 text-sm mt-1'>We match you with the right expert for your needs.</p>

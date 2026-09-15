@@ -7,7 +7,7 @@ from rest_framework import status
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator 
 
-from .serializers import registerSerializer,loginSerializer,bookServiceSerializer
+from .serializers import registerSerializer,loginSerializer,bookServiceSerializer,userSerializer
 from django.contrib.auth import authenticate,login,logout
 from .models import ServiceModel
 from .models import CustomUser
@@ -228,3 +228,132 @@ def delete_service(request, id):
             {"error": "Service not found"},
             status=status.HTTP_404_NOT_FOUND
         )
+        
+
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllServices(request):
+    services=ServiceModel.objects.filter(is_delete= False)
+    serializer=bookServiceSerializer(services,many=True)
+    print (serializer.data)
+    return Response(serializer.data)
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllPendingServices(request):
+    services=ServiceModel.objects.filter(status="pending",is_delete= False)
+    serializer=bookServiceSerializer(services,many=True)
+    print (serializer.data)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllInProgressServices(request):
+    services=ServiceModel.objects.filter(status="in progress",is_delete= False)
+    serializer=bookServiceSerializer(services,many=True)
+    print (serializer.data)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAllCompletedServices(request):
+    services=ServiceModel.objects.filter(status="completed",is_delete= False)
+    serializer=bookServiceSerializer(services,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAvailableTech(request):
+    tech=CustomUser.objects.filter(role="technician")
+    serializer=userSerializer(tech,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAvailableCustomer(request):
+    tech=CustomUser.objects.filter(role="customer")
+    serializer=userSerializer(tech,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_service_admin(request,id):
+    try:
+        services=ServiceModel.objects.get(id=id,is_delete= False)
+        serializer=bookServiceSerializer(services)
+        return Response(serializer.data)
+    except:
+        return Response({"error":"Not found"},status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_category_based_technician(request,category):
+    tech=CustomUser.objects.filter(role="technician",skill=category)
+    serializer=userSerializer(tech,many=True)
+    return Response(serializer.data)
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def assign_technician(request,id,techid):
+    try:
+        service=ServiceModel.objects.get(id=id,is_delete= False)
+        technician = CustomUser.objects.get(
+            id=techid,
+            role="technician"
+        )
+        service.status="assigned"
+        service.technician=technician
+        service.save()
+        serializer=bookServiceSerializer(service)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def cancel_request(request,id):
+    try:
+        service=ServiceModel.objects.get(id=id,is_delete= False)
+        service.status="cancelled"
+        service.save()
+        serializer=bookServiceSerializer(service)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def technician_assigned_job(request,id):
+    try:
+        services=ServiceModel.objects.filter(is_delete=False,technician_id=id,status="assigned")
+        serializer=bookServiceSerializer(services,many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def accept_job(request,id):
+    try:
+        service=ServiceModel.objects.get(id=id,is_delete= False)
+        service.status="in progress"
+        service.save()
+        serializer=bookServiceSerializer(service)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        

@@ -80,7 +80,7 @@ const ViewService = () => {
                                     {service.status === "assigned" && (
                                         <span className='text-purple-900 text-center pl-3 pr-3 rounded-xl bg-purple-200'>{service.status}</span>
                                     )}
-                                    {service.status === 'Cancelled' && (
+                                    {service.status === 'cancelled' && (
                                         <span className='text-red-900 text-center pl-3 pr-3 rounded-xl bg-red-200'>{service.status}</span>
                                     )}
                                 </div>

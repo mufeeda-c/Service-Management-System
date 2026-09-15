@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_skills,Technician ,registerUser,loginUser,hello, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services
+from .views import accept_job ,technician_assigned_job,cancel_request,getAllServices,assign_technician, get_category_based_technician ,get_service_admin,getAvailableCustomer,getAvailableTech,getAllCompletedServices,getAllInProgressServices,getAllPendingServices,get_skills,Technician ,registerUser,loginUser,hello, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services
 
 urlpatterns = [
     path('',registerUser ),
@@ -17,7 +17,19 @@ urlpatterns = [
     path('delete_service/<int:id>',delete_service),
     path('csrf/',csrfToken),
     path('skills/', get_skills, name='get-skills'),
-    path('technician/',Technician)
+    path('technician/',Technician),
+    path('getAllPendingServices/',getAllPendingServices),
+    path('getAllInProgressServices/',getAllInProgressServices),
+    path('getAllCompletedServices/',getAllCompletedServices),
+    path('getAvailableTech/',getAvailableTech),
+    path('getAvailableCustomer/',getAvailableCustomer),
+    path('get_service_admin/<int:id>/',get_service_admin),
+    path('get_category_based_technician/<str:category>/',get_category_based_technician),
+    path('assign_technician/<int:id>/<int:techid>/',assign_technician),
+    path('getAllServices/',getAllServices),
+    path('cancel_request/<int:id>/',cancel_request),
+    path('technician_assigned_job/<int:id>/',technician_assigned_job),
+    path('accept_job/<int:id>/',accept_job)
 ]
 
 

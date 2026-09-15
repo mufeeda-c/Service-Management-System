@@ -39,12 +39,23 @@ class ServiceModel(models.Model):
             ('in progress','In progress'),
             ('cancelled', 'Cancelled'),
         )
+    CATEGORY_CHOICES = (
+            ('Plumbing', 'Plumbing'),
+            ('Electrician', 'Electrician'),
+            ('Carpentry', 'Carpentry'),
+            ('Cleaning', 'Cleaning'),
+            ('AC_Repair', 'AC Repair'),
+            ('Appliance_Repair', 'Appliance Repair'),
+            ('Painting', 'Painting'),
+            ('General', 'General'),
+        )
     customer=models.ForeignKey(CustomUser,on_delete=models.CASCADE,blank=False)
     description=models.TextField(blank=False)
     status=models.CharField(choices=STATUS_CHOICES,blank=False,max_length=20,default='pending')
-    category=models.CharField(blank=False,max_length=20)
+    category=models.CharField(choices=CATEGORY_CHOICES,blank=False,max_length=20)
     pincode = models.CharField(max_length=6)
     date=models.DateTimeField(blank=False)
+    created_at=models.DateTimeField(auto_now_add=True)
     address=models.TextField(blank=False)
     technician = models.ForeignKey(
         CustomUser,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
-import { useNavigate,useParams} from 'react-router-dom'
-import { edit_service, get_service, logoutUser } from '../api/register'
+import { useNavigate, useParams } from 'react-router-dom'
+import { edit_service, get_service, logoutUser,fetchSkills } from '../api/register'
 
 const EditService = () => {
 
@@ -18,16 +18,24 @@ const EditService = () => {
     const [pincodeError, setPincodeError] = useState('')
     const [dateError, setDateError] = useState('')
 
+    const [skills, setSkills] = useState([])
+
+
     const navigate = useNavigate()
 
-    
 
-    const {id} = useParams()
+
+    const { id } = useParams()
 
     console.log("id from search params", id)
 
+
     useEffect(() => {
         async function getData() {
+            
+            const skills = await fetchSkills()
+            setSkills(skills.data)
+            
             const result = await get_service(id);
             setDescription(result.data.description)
             setCategory(result.data.category)
@@ -124,10 +132,15 @@ const EditService = () => {
                                         setCategoryError('')
                                         setCategory(e.target.value)
                                     }} className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'>
-                                        <option value=''>Choose a service</option>
-                                        <option value='service1'>Service 1</option>
-                                        <option value='service2'>Service 2</option>
-                                        <option value='service3'>Service 3</option>
+                                        <option value="" disabled className='text-gray-400'>---Select your skill---</option>
+                                        {skills.map((item) => (
+                                            <option
+                                                key={item.value}
+                                                value={item.value}
+                                            >
+                                                {item.label}
+                                            </option>
+                                        ))}
                                     </select>
                                     {categoryError && <p className='text-red-500 text-sm'>{categoryError}</p>}
                                     <p className='text-gray-500 text-sm mt-1'>We match you with the right expert for your needs.</p>

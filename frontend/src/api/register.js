@@ -53,7 +53,7 @@ export async function registerCustomer(userName, phone, email, password) {
     }
 }
 
-export async function registerTechnician(userName, phone, email, password,skill) {
+export async function registerTechnician(userName, phone, email, password, skill) {
     try {
         const payload = {
             "role": "technician",
@@ -61,7 +61,7 @@ export async function registerTechnician(userName, phone, email, password,skill)
             "email": email,
             "username": userName,
             "password": password,
-            "skill":skill
+            "skill": skill
         }
         const result = await axios.post(`${api_url}`, payload)
         return {
@@ -308,5 +308,198 @@ export async function Technician() {
             success: false,
             data: error.response?.data
         };
+    }
+}
+
+export async function getAllServices() {
+    try {
+        const result = await axios.get(`${api_url}/getAllServices`)
+        return {
+            sucess: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAllServices catch", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function getAllPendingServices() {
+    try {
+        const result = await axios.get(`${api_url}/getAllPendingServices/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAllPendingServices Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function getAllInProgressServices() {
+    try {
+        const result = await axios.get(`${api_url}/getAllInProgressServices/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAllPendingServices Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function getAllCompletedServices() {
+    try {
+        const result = await axios.get(`${api_url}/getAllCompletedServices/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAllCompletedServices Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function getAvailableTech() {
+    try {
+        const result = await axios.get(`${api_url}/getAvailableTech/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAvailableTech Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function getAvailableCustomer() {
+    try {
+        const result = await axios.get(`${api_url}/getAvailableCustomer/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAvailableTech Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+
+export async function get_service_admin(id) {
+    try {
+        const result = await axios.get(`${api_url}/get_service_admin/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAvailableTech Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function get_category_based_technician(category) {
+    try {
+        const result = await axios.get(`${api_url}/get_category_based_technician/${category}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getCategoryBasedTechnician", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function assign_technician(id, techid) {
+    try {
+        const result = await axios.put(`${api_url}/assign_technician/${id}/${techid}/`)
+        console.log("result in getCategoryBasedTechnician", result)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getCategoryBasedTechnician", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function cancel_request(id) {
+    try {
+        console.log("cancel id :", id)
+        const result = await axios.put(`${api_url}/cancel_request/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getCategoryBasedTechnician", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function technician_assigned_job(id) {
+    try {
+        const result = await axios.get(`${api_url}/technician_assigned_job/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in technician_assigned_job", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function accept_job(id) {
+    try {
+        const result = await axios.put(`${api_url}/accept_job/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in accept_job", error.response)
+        return {
+            success:false,
+            data:error.response?.data
+        }
     }
 }
