@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { FaEye } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import { useNavigate } from 'react-router-dom'
-import { hello, delete_service, get_services, logoutUser, get_pending_services, get_completed_services, get_inprogress_services, get_assigned_services } from '../api/register';
+import { hello, delete_service, get_services, get_pending_services, get_completed_services, get_inprogress_services, get_assigned_services } from '../api/register';
+import SideBar from '../components/SideBar';
 // import RequestTable from '../components/RequestTable';
 const CustomerDashboard = () => {
     const [services, setServices] = useState([])
@@ -10,76 +14,93 @@ const CustomerDashboard = () => {
     const [completedService, setCompletedService] = useState([])
     const [assignedService, setAssignedService] = useState([])
 
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+
+    const [username, setUsername] = useState("")
+
+
+
     const navigate = useNavigate()
+    async function getData() {
+        const services = await get_services();
+        setServices(services.data)
+        setAllServices(services.data)
+        const pending = await get_pending_services()
+        setPendingService(pending.data)
+        const completed = await get_completed_services()
+        setCompletedService(completed.data)
+        const inprogress = await get_inprogress_services()
+        setInProgressService(inprogress.data)
+        const assigned = await get_assigned_services()
+        setAssignedService(assigned.data)
+        const name = sessionStorage.getItem("user");
+        setUsername(name)
 
+    }
     useEffect(() => {
-        async function getData() {
-            const services = await get_services();
-            setServices(services.data)
-            setAllServices(services.data)
-            const pending = await get_pending_services()
-            setPendingService(pending.data)
-            const completed = await get_completed_services()
-            setCompletedService(completed.data)
-            const inprogress = await get_inprogress_services()
-            setInProgressService(inprogress.data)
-            const assigned = await get_assigned_services()
-            setAssignedService(assigned.data)
-
-        } getData()
+        getData()
     }, [])
 
 
-    const handleLogout = async () => {
-        const result = await logoutUser();
-        console.log("logout result", result)
-        if (result.success) {
-            navigate('/login')
-        }
-    }
 
-    const handleDelete = async (id) => {
-        const result = await delete_service(id);
+
+    const handleDelete = (id) => {
+        setDeleteId(id);
+        setShowDeleteModal(true);
+    };
+    const handleDeleteClick = async () => {
+        const result = await delete_service(deleteId);
         console.log("delete result", result)
         if (result.success) {
-            alert('Service deleted successfully')
-            const updatedServices = services.filter(service => service.id !== id);
-            setServices(updatedServices);
-        } else {
-            alert('Failed to delete service')
+            getData()
         }
+        setShowDeleteModal(false);
+        setDeleteId(null);
     }
+
+
 
     return (
         <>
-            <div className='flex md:flex-row flex-col   lg:h-screen '>
-                <div className='bg-blue-950 p-5 pt-7 text-white'>
-                    <ul className='space-y-2 flex md:flex-col flex-row md:space-y-0 md:justify-items-end md:space-x-0 space-x-2'>
-                        <h1 className='md:pl-5 md:pr-5 text-2xl font-bold mb-4'>ServiceApp</h1>
-                        <li onClick={
-                            (e) => {
-                                e.preventDefault()
-                                navigate('/customer')
-                            }
-                        } className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Dashboard</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/book-service')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>+ Book a service</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/my-requests')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>My requests</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            handleLogout()
-                        }}
-                            className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Logout</li>
-                    </ul>
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+                        <h2 className="text-xl font-semibold mb-3">
+                            Confirm Delete
+                        </h2>
+
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete this service?
+                        </p>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setDeleteId(null);
+                                }}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={handleDeleteClick}
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div className='bg-gray-200 border border-gray-300 w-full  p-8'>
+            )}
+
+            <div className='flex md:flex-row flex-col h-screen overflow-hidden '>
+                <SideBar />
+                <div className='bg-gray-200 border border-gray-300 w-full  p-8 overflow-y-auto'>
                     <div className='flex justify-between items-center mb-8'>
-                        <h2 className='text-2xl font-bold mb-4'>Customer Dashboard</h2>
+                        <h2 className='text-2xl font-bold mb-4'>Welcome Back {username} !</h2>
                         <button onClick={(e) => {
                             e.preventDefault()
                             navigate('/book-service')
@@ -147,27 +168,31 @@ const CustomerDashboard = () => {
                                                     <span className='text-red-900 text-center pl-3 pr-3 rounded-xl bg-red-200'>{service.status}</span>
                                                 )}
                                             </td>
-                                            <td className='border hidden lg:table-cell border-gray-300 p-2'>{service.technician === null ? 'Not Assigned' : service.technician}</td>
+                                            <td className='border hidden lg:table-cell border-gray-300 p-2'>{service.technician === null ? 'Not Assigned' : service.technician.username}</td>
                                             <td className='border border-gray-300 p-2'>{new Date(service.date).toLocaleDateString()}</td>
                                             <td className='border border-gray-300 p-2'>
                                                 <button onClick={(e) => {
                                                     e.preventDefault()
                                                     navigate(`/view-service/${service.id}`)
-                                                }} className='bg-blue-300 m-1 hover:bg-blue-900 hover:text-white text-blue-900 font-bold py-1 px-2 rounded'>
-                                                    View
+                                                }} className='m-1 hover:bg-blue-900 hover:text-white text-blue-900 font-bold py-1 px-2 rounded'>
+                                                    <FaEye />
                                                 </button>
-                                                <button onClick={(e) => {
-                                                    e.preventDefault()
-                                                    navigate(`/edit-service/${service.id}`)
-                                                }} className='bg-yellow-300 m-1 hover:bg-yellow-900 hover:text-white text-yellow-900 font-bold py-1 px-2 rounded'>
-                                                    Edit
-                                                </button>
-                                                <button onClick={(e) => {
-                                                    e.preventDefault()
-                                                    handleDelete(service.id)
-                                                }} className='bg-red-300 m-1 hover:bg-red-900 hover:text-white text-red-900 font-bold py-1 px-2 rounded'>
-                                                    Delete
-                                                </button>
+                                                {service.status == "pending" && (
+                                                    <>
+                                                        <button onClick={(e) => {
+                                                            e.preventDefault()
+                                                            navigate(`/edit-service/${service.id}`)
+                                                        }} className='m-1 hover:bg-yellow-900 hover:text-white text-yellow-900 font-bold py-1 px-2 rounded'>
+                                                            <MdEdit />
+                                                        </button>
+                                                        <button onClick={(e) => {
+                                                            e.preventDefault()
+                                                            handleDelete(service.id)
+                                                        }} className=' m-1 hover:bg-red-900 hover:text-white text-red-900 font-bold py-1 px-2 rounded'>
+                                                            <MdDeleteForever />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

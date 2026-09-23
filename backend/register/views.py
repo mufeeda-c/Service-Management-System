@@ -357,3 +357,106 @@ def accept_job(request,id):
             status=status.HTTP_400_BAD_REQUEST
         )
         
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_users(request):
+    try:
+        users=CustomUser.objects.all()
+        serializer=userSerializer(users,many=True)
+        return Response(serializer.data)
+    except:
+        pass
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_admins(request):
+    try:
+        admins=CustomUser.objects.filter(role="admin")
+        serializer=userSerializer(admins,many=True)
+        return Response(serializer.data)
+    except:
+        pass
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_technician(request):
+    try:
+        admins=CustomUser.objects.filter(role="technician")
+        serializer=userSerializer(admins,many=True)
+        return Response(serializer.data)
+    except:
+        pass
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_customer(request):
+    try:
+        admins=CustomUser.objects.filter(role="customer")
+        serializer=userSerializer(admins,many=True)
+        return Response(serializer.data)
+    except:
+        pass
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def activate_user(request,id):
+    try:
+        user=CustomUser.objects.get(id=id)
+        user.is_active=1
+        user.save()
+        serializer=userSerializer(user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+        
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def deactivate_user(request,id):
+    try:
+        user=CustomUser.objects.get(id=id)
+        user.is_active=0
+        user.save()
+        serializer=userSerializer(user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+                
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_services_technician(request):
+    services=ServiceModel.objects.filter(technician=request.user,is_delete= False).order_by('-id')
+    serializer=bookServiceSerializer(services,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_inprogress_services_technician(request):
+    services=ServiceModel.objects.filter(technician=request.user,status="in progress",is_delete= False).order_by('-id')
+    serializer=bookServiceSerializer(services,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_completed_services_technician(request):
+    services=ServiceModel.objects.filter(technician=request.user,status="completed",is_delete= False).order_by('-id')
+    serializer=bookServiceSerializer(services,many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_service_technician(request,id):
+    try:
+        services=ServiceModel.objects.get(technician=request.user,id=id,is_delete= False)
+        serializer=bookServiceSerializer(services)
+        return Response(serializer.data)
+    except:
+        return Response({"error":"Not found"},status=status.HTTP_400_BAD_REQUEST)

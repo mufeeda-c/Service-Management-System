@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
 import { useNavigate ,useParams } from 'react-router-dom'
-import { logoutUser, book_service, get_service } from '../api/register'
+import {  get_service } from '../api/register'
+import SideBar from '../components/SideBar'
 
 const ViewService = () => {
     const navigate = useNavigate()
@@ -14,41 +15,12 @@ const ViewService = () => {
             setService(result.data)
         } getData()
     }, [])
-    const handleLogout = async () => {
-            const result = await logoutUser();
-            console.log("logout result", result) 
-            if(result.success){
-                navigate('/login')
-            }
-        }
+   
 
     return (
         <div>
             <div className='flex md:flex-row flex-col     '>
-                <div className='bg-blue-950 p-5 pt-7 text-white'>
-                    <ul className='space-y-2 flex md:flex-col flex-row md:space-y-0 md:justify-items-end md:space-x-0 space-x-2'>
-                        <h1 className='md:pl-5 md:pr-5 text-2xl font-bold mb-4'>ServiceApp</h1>
-                        <li onClick={
-                            (e) => {
-                                e.preventDefault()
-                                navigate('/customer')
-                            }
-                        } className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Dashboard</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/book-service')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>+ Book a service</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/my-requests')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>My requests</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            handleLogout()
-                        }}
-                            className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Logout</li>
-                    </ul>
-                </div>
+                <SideBar/>
                 <div className='bg-gray-200 border border-gray-300 w-full pt-4 h-screen ps-8 pe-8 pb-8'>
                     <div className='flex justify-between items-center mb-8'>
                         <div>
@@ -71,7 +43,7 @@ const ViewService = () => {
                                     {service.status === 'pending' && (
                                         <span className='text-blue-900 text-center pl-3 pr-3 rounded-xl bg-blue-200'>{service.status}</span>
                                     )}
-                                    {service.status === 'in Progress' && (
+                                    {service.status === 'in progress' && (
                                         <span className='text-yellow-900 text-center pl-3 pr-3 rounded-xl bg-yellow-200'>{service.status}</span>
                                     )}
                                     {service.status === 'completed' && (
@@ -94,13 +66,13 @@ const ViewService = () => {
                                 <p className='text-gray-900 '>{service.date}</p>
 
                             </div>
-                            {(!service.technician) && (
+                            {(service.technician) && (
                                 <div className='bg-white p-4 rounded-md w-full gap-4 shadow-md mb-0 '>
                                     <h3 className='text-xl font-bold mb-6'>Your technician </h3>
-                                    <p className='text-lg font-semibold mt-5'><span className='text-purple-900 text-center p-2 rounded-xl bg-purple-200'>T</span>  Technician Name </p>
+                                    <p className='text-lg font-semibold mt-5'><span className='text-purple-900 text-center p-2 rounded-xl bg-purple-200'>T</span>  {service.technician.username} </p>
                                     <div className='flex justify-between items-center'>
                                         <p className='text-gray-500 ps-8'>{service.category}</p>
-                                        <p className='text-gray-500 ps-8'>Technician number</p>
+                                        <p className='text-gray-500 ps-8'>{service.technician.phone}</p>
                                     </div>
                                 </div>
                             )}

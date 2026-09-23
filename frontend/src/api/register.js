@@ -52,6 +52,29 @@ export async function registerCustomer(userName, phone, email, password) {
         };
     }
 }
+export async function registerAdmin(userName, phone, email, password) {
+    try {
+        const payload = {
+            "role": "admin",
+            "phone": phone,
+            "email": email,
+            "username": userName,
+            "password": password
+        }
+        const result = await axios.post(`${api_url}`, payload)
+        return {
+            success: true,
+            data: result.data
+        };
+    } catch (error) {
+        console.log("error in register catch", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        };
+    }
+}
+
 
 export async function registerTechnician(userName, phone, email, password, skill) {
     try {
@@ -500,6 +523,160 @@ export async function accept_job(id) {
         return {
             success:false,
             data:error.response?.data
+        }
+    }
+}
+export async function getAllUsers() {
+    try {
+        const result = await axios.get(`${api_url}/get_all_users/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getAllUsers Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+
+export async function get_all_admins() {
+    try {
+        const result = await axios.get(`${api_url}/get_all_admins/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_all_admins Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function get_all_technician() {
+    try {
+        const result = await axios.get(`${api_url}/get_all_technician/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_all_technician Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function get_all_customer() {
+    try {
+        const result = await axios.get(`${api_url}/get_all_customer/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_all_customer Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function activate_user(id) {
+    try {
+        const result = await axios.put(`${api_url}/activate_user/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in activate_user Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function deactivate_user(id) {
+    try {
+        const result = await axios.put(`${api_url}/deactivate_user/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in deactivate_user Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function  get_services_technician() {
+    try {
+        const result = await axios.get(`${api_url}/get_services_technician/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_services_technician Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function get_inprogress_services_technician() {
+    try {
+        const result = await axios.get(`${api_url}/get_inprogress_services_technician/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_inprogress_services_technician Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}export async function get_completed_services_technician() {
+    try {
+        const result = await axios.get(`${api_url}/get_completed_services_technician/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_completed_services_technician Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function get_service_technician(id) {
+    try {
+        const result = await axios.get(`${api_url}/get_service_technician/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in get_service_technician Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
         }
     }
 }

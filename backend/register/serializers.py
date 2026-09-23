@@ -26,7 +26,7 @@ class loginSerializer(serializers.Serializer):
     
 class bookServiceSerializer(serializers.ModelSerializer):
     customer = serializers.SerializerMethodField()
-
+    technician =serializers.SerializerMethodField()
     class Meta:
         model=ServiceModel
         fields="__all__"
@@ -43,8 +43,18 @@ class bookServiceSerializer(serializers.ModelSerializer):
             "phone":obj.customer.phone,
             "email":obj.customer.email
         }
+    def get_technician(self, obj):
+        if not obj.technician:
+            return None
+
+        return {
+            "id": obj.technician.id,
+            "username": obj.technician.username,
+            "phone": obj.technician.phone,
+            "email": obj.technician.email
+        }
         
 class userSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['role','phone','email','username','skill','id']
+        fields=['role','phone','email','username','skill','id','date_joined','is_active']

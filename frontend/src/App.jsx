@@ -14,7 +14,13 @@ import { fetchCsrfToken } from './api/register';
 import AdminDashboard from './pages/AdminDashboard'
 import ViewServiceAdmin from './pages/viewServiceAdmin'
 import AllRequests from './pages/AllRequests'
-
+import AllUsers from './pages/AllUsers'
+import AllTechnician from './pages/AllTechnician'
+import CreateAdmin from './pages/CreateAdmin'
+import ViewRequest from './pages/ViewRequest'
+import MyJob from './pages/MyJob'
+import ViewServiceTechnician from './pages/ViewServiceTechnician'
+import AssignTechnician from './pages/AssignTechnician'
 
 function App() {
   useEffect(() => {
@@ -38,6 +44,13 @@ function App() {
           <Route path='/my-requests' element={<MyRequest />} />
           <Route path='/view-service-admin/:id' element={<ViewServiceAdmin />} />
           <Route path="/all-requests" element={<AllRequests />} />
+          <Route path="/all-users" element={<AllUsers />} />
+          <Route path="/technicians" element={<AllTechnician />} />
+          <Route path="/create-admin" element={<CreateAdmin />} />
+          <Route path="/view-request" element={<ViewRequest />} />
+          <Route path='/view-service-technician/:id' element={<ViewServiceTechnician/>}/>
+          <Route path='/my-job' element={<MyJob />} />
+          <Route path="/AssignTechnician/:id" element={<AssignTechnician/>}/>
           <Route path='*' element={<h1>404 Not Found</h1>} />
         </Routes>
       </BrowserRouter>

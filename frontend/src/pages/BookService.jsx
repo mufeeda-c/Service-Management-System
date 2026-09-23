@@ -1,7 +1,8 @@
-import { useState ,useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { book_service, logoutUser ,fetchSkills} from '../api/register'
+import { book_service, logoutUser, fetchSkills } from '../api/register'
+import SideBar from '../components/SideBar'
 
 const BookService = () => {
     const [description, setDescription] = useState('')
@@ -22,20 +23,14 @@ const BookService = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-            async function getSkill() {
-                const skills = await fetchSkills()
-                setSkills(skills.data)
-            }
-            getSkill()
-        }, [])
-    
-    const handleLogout = async () => {
-        const result = await logoutUser();
-        console.log("logout result", result)
-        if (result.success) {
-            navigate('/login')
+        async function getSkill() {
+            const skills = await fetchSkills()
+            setSkills(skills.data)
         }
-    }
+        getSkill()
+    }, [])
+
+   
     const handleSubmit = async (e) => {
         e.preventDefault()
         const result = await book_service(description, address, date, category, pincode)
@@ -69,37 +64,14 @@ const BookService = () => {
     }
     return (
         <div>
-            <div className='flex md:flex-row flex-col     '>
-                <div className='bg-blue-950 p-5 pt-7 text-white'>
-                    <ul className='space-y-2 flex md:flex-col flex-row md:space-y-0 md:justify-items-end md:space-x-0 space-x-2'>
-                        <h1 className='md:pl-5 md:pr-5 text-2xl font-bold mb-4'>ServiceApp</h1>
-                        <li onClick={
-                            (e) => {
-                                e.preventDefault()
-                                navigate('/customer')
-                            }
-                        } className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Dashboard</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/book-service')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>+ Book a service</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            navigate('/my-requests')
-                        }} className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>My requests</li>
-                        <li onClick={(e) => {
-                            e.preventDefault()
-                            handleLogout()
-                        }}
-                            className='md:pl-5 md:pr-5 hover:bg-gray-300 hover:text-gray-900 rounded-md p-2 cursor-pointer'>Logout</li>
-                    </ul>
-                </div>
-                <div className='bg-gray-200 border border-gray-300 w-full pt-4  ps-8 pe-8 pb-8'>
+            <div className='flex md:flex-row flex-col  h-screen overflow-hidden   '>
+                <SideBar />
+                <div className='bg-gray-200 border border-gray-300 w-full pt-4  ps-8 pe-8 pb-8 overflow-y-auto'>
                     <div className='flex justify-between items-center mb-8'>
                         <h2 className='text-2xl font-bold mb-4'>Book a Service</h2>
                         <button onClick={(e) => {
                             e.preventDefault()
-                            navigate('/customer')
+                            navigate('/my-requests')
                         }} className='bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded' >
                             ← My requests
                         </button>
