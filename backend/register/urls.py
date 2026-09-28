@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  get_service_technician,get_completed_services_technician,get_inprogress_services_technician,get_services_technician,activate_user,deactivate_user ,get_all_technician,get_all_customer,get_all_admins, get_all_users ,accept_job ,technician_assigned_job,cancel_request,getAllServices,assign_technician, get_category_based_technician ,get_service_admin,getAvailableCustomer,getAvailableTech,getAllCompletedServices,getAllInProgressServices,getAllPendingServices,get_skills,Technician ,registerUser,loginUser,hello, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services
+from .views import  reject_service ,get_service_technician,get_completed_services_technician,get_inprogress_services_technician,get_services_technician,activate_user,deactivate_user ,get_all_technician,get_all_customer,get_all_admins, get_all_users ,accept_job ,technician_assigned_job,cancel_request,getAllServices,assign_technician, get_category_based_technician ,get_service_admin,getAvailableCustomer,getAvailableTech,getAllCompletedServices,getAllInProgressServices,getAllPendingServices,get_skills,Technician ,registerUser,loginUser,hello, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services
 
 urlpatterns = [
     path('',registerUser ),
@@ -24,7 +24,7 @@ urlpatterns = [
     path('getAvailableTech/',getAvailableTech),
     path('getAvailableCustomer/',getAvailableCustomer),
     path('get_service_admin/<int:id>/',get_service_admin),
-    path('get_category_based_technician/<str:category>/',get_category_based_technician),
+    path('get_category_based_technician/<int:service_id>/',get_category_based_technician),
     path('assign_technician/<int:id>/<int:techid>/',assign_technician),
     path('getAllServices/',getAllServices),
     path('cancel_request/<int:id>/',cancel_request),
@@ -39,7 +39,8 @@ urlpatterns = [
     path('get_services_technician/',get_services_technician),
     path('get_inprogress_services_technician/',get_inprogress_services_technician),
     path('get_completed_services_technician/', get_completed_services_technician),
-    path('get_service_technician/<int:id>/',get_service_technician)
+    path('get_service_technician/<int:id>/',get_service_technician),
+    path('reject_service/<int:service_id>/',reject_service)
 ]
 
 

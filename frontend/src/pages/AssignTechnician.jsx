@@ -10,6 +10,13 @@ const AssignTechnician = () => {
     const [service, setService] = useState({})
     const [technician, setTechnician] = useState([])
     const [selectedTechnician, setSelectedTechnician] = useState(null)
+
+    const [snackbar, setSnackbar] = useState({
+            show: false,
+            message: '',
+            type: ''
+        })
+
     const { id } = useParams()
     console.log("id", id)
     useEffect(() => {
@@ -17,7 +24,7 @@ const AssignTechnician = () => {
             const result = await get_service_admin(id);
             console.log(result.data)
             setService(result.data)
-            const technician = await get_category_based_technician(result.data.category)
+            const technician = await get_category_based_technician(id)
             console.log(technician.data)
             setTechnician(technician.data)
             if (technician.data?.length > 0) {
@@ -29,25 +36,52 @@ const AssignTechnician = () => {
 
     const handleAssign = async () =>{
         if(technician?.length==0){
-            alert("Technicians are not available")
+            setSnackbar({
+                show: true,
+                message: 'Technicians are not available',
+                type: 'error',
+               
+            })
             return
         }
         console.log("selected",selectedTechnician)
         console.log("service",service)
         const assigned=await assign_technician(id, selectedTechnician)
         if(assigned.success==true){
-            navigate('/admin')
+            setSnackbar({
+                show: true,
+                message: " Technician assigned successfully" ,
+                type: 'success',
+            })
+            // Navigate after 1.5 seconds
+            setTimeout(() => {
+                navigate('/admin')
+            }, 1500)
         }
         else{
-            alert(assigned.data)
+            
+             setSnackbar({
+                show: true,
+                message: "Failed to assign technician" ,
+                type: 'error',
+            })
         }
+        
         console.log("assigned",assigned)
     }
 
     const cancelRequest= async (id)=>{
         const cancel=await cancel_request(id)
         if (cancel.success==true){
-            navigate(`/admin`)
+            
+            setSnackbar({
+                show: true,
+                message: "Request Cancelled" ,
+                type: 'error',
+            })
+            setTimeout(() => {
+                navigate(`/admin`)
+            }, 1500)
         }
     }
 
@@ -180,7 +214,19 @@ const AssignTechnician = () => {
                     </div>
                 </div>
             </div>
-
+{/* Snackbar */}
+            {snackbar.show && snackbar.type=="success" && (
+                <div className="fixed bottom-5 right-5 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                    <span>✓</span>
+                    <span>{snackbar.message}</span>
+                </div>
+            )}
+            {snackbar.show && snackbar.type=="error" && (
+                <div className="fixed bottom-5 right-5 bg-red-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                    <span>✓</span>
+                    <span>{snackbar.message}</span>
+                </div>
+            )}
         </div >
     )
 }

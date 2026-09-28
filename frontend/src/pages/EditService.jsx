@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { edit_service, get_service, logoutUser,fetchSkills } from '../api/register'
+import { edit_service, get_service, logoutUser, fetchSkills } from '../api/register'
 
 const EditService = () => {
 
@@ -20,6 +20,11 @@ const EditService = () => {
 
     const [skills, setSkills] = useState([])
 
+    const [snackbar, setSnackbar] = useState({
+        show: false,
+        message: '',
+        type: ''
+    })
 
     const navigate = useNavigate()
 
@@ -32,10 +37,10 @@ const EditService = () => {
 
     useEffect(() => {
         async function getData() {
-            
+
             const skills = await fetchSkills()
             setSkills(skills.data)
-            
+
             const result = await get_service(id);
             setDescription(result.data.description)
             setCategory(result.data.category)
@@ -58,13 +63,20 @@ const EditService = () => {
         const result = await edit_service(id, description, address, date, category, pincode)
         console.log("edit service result", result)
         if (result.success) {
-            alert('Service updated successfully');
+            setSnackbar({
+                show: true,
+                message: 'Service updated successfully',
+                type: 'success'
+            })
             setDescription('')
             setCategory('')
             setAddress('')
             setPincode('')
             setDate('')
-            navigate('/customer')
+            setTimeout(() => {
+                navigate('/customer')
+            }, 1500)
+
             return
         }
         const errors = result.data;
@@ -218,7 +230,13 @@ const EditService = () => {
                     </div>
                 </div>
             </div>
-
+            {/* Snackbar */}
+            {snackbar.show && (
+                <div className="fixed bottom-5 right-5 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                    <span>✓</span>
+                    <span>{snackbar.message}</span>
+                </div>
+            )}
         </div>
     )
 }

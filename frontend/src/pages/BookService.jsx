@@ -17,6 +17,12 @@ const BookService = () => {
     const [pincodeError, setPincodeError] = useState('')
     const [dateError, setDateError] = useState('')
 
+    const [snackbar, setSnackbar] = useState({
+        show: false,
+        message: '',
+        type: ''
+    })
+
     const [skills, setSkills] = useState([])
 
 
@@ -30,19 +36,27 @@ const BookService = () => {
         getSkill()
     }, [])
 
-   
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         const result = await book_service(description, address, date, category, pincode)
         console.log("book service result", result)
         if (result.success) {
-            alert('Service booked successfully');
+            setSnackbar({
+                show: true,
+                message: 'Service booked successfully',
+                type: 'success'
+            })
+
             setDescription('')
             setCategory('')
             setAddress('')
             setPincode('')
             setDate('')
-            navigate('/customer')
+            // Navigate after 1.5 seconds
+            setTimeout(() => {
+                navigate('/customer')
+            }, 1500)
             return
         }
         const errors = result.data;
@@ -169,7 +183,13 @@ const BookService = () => {
                     </div>
                 </div>
             </div>
-
+            {/* Snackbar */}
+            {snackbar.show && (
+                <div className="fixed bottom-5 right-5 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2">
+                    <span>✓</span>
+                    <span>{snackbar.message}</span>
+                </div>
+            )}
         </div>
     )
 }

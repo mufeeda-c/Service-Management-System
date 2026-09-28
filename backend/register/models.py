@@ -68,3 +68,22 @@ class ServiceModel(models.Model):
     is_delete = models.BooleanField(default=False)    
     def __str__(self):
             return self.description
+        
+class RejectedService(models.Model):
+    service = models.ForeignKey(
+        ServiceModel,
+        on_delete=models.CASCADE,
+        related_name='rejected_technicians'
+    )
+    technician = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='rejected_services'
+    )
+    rejected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('service', 'technician')
+
+    def __str__(self):
+        return f"{self.technician.username} rejected {self.service.id}"

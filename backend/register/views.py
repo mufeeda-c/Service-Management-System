@@ -11,7 +11,7 @@ from .serializers import registerSerializer,loginSerializer,bookServiceSerialize
 from django.contrib.auth import authenticate,login,logout
 from .models import ServiceModel
 from .models import CustomUser
-
+from .models import RejectedService
 
 # Create your views here.
 
@@ -288,8 +288,21 @@ def get_service_admin(request,id):
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_category_based_technician(request,category):
-    tech=CustomUser.objects.filter(role="technician",skill=category)
+def get_category_based_technician(request,service_id):
+    try:
+        service = ServiceModel.objects.get(id=service_id)
+    except ServiceModel.DoesNotExist:
+        return Response(
+            {"error": "Service not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    rejected_ids = RejectedService.objects.filter(
+        service=service
+    ).values_list('technician_id', flat=True)
+        
+    tech=CustomUser.objects.filter(role="technician",skill=service.category, is_active=True).exclude(
+        id__in=rejected_ids
+    )
     serializer=userSerializer(tech,many=True)
     return Response(serializer.data)
     
@@ -460,3 +473,43 @@ def get_service_technician(request,id):
         return Response(serializer.data)
     except:
         return Response({"error":"Not found"},status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def reject_service(request, service_id):
+
+    try:
+        service = ServiceModel.objects.get(id=service_id)
+
+    except ServiceModel.DoesNotExist:
+        return Response(
+            {"error": "Service not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Make sure only the assigned technician can reject
+    if service.technician != request.user:
+        return Response(
+            {"error": "You are not assigned to this service"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Save rejected technician
+    RejectedService.objects.get_or_create(
+        service=service,
+        technician=request.user
+    )
+
+    # Remove technician from service
+    service.technician = None
+
+    # Make job available again
+    service.status = 'pending'
+
+    service.save()
+
+    return Response(
+        {"message": "Service rejected successfully"},
+        status=status.HTTP_200_OK
+    )

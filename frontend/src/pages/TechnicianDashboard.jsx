@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 //  import RequestTable from '../components/RequestTable';
-import { accept_job, Technician, logoutUser, technician_assigned_job } from '../api/register'
+import { accept_job, Technician, reject_service, technician_assigned_job } from '../api/register'
 import SideBarTechnician from '../components/SideBarTechnician'
 const TechnicianDashboard = () => {
   const [services, setServices] = useState([])
   const [user, setUser] = useState([])
   const [username, setUsername] = useState("")
+
+  const [snackbar, setSnackbar] = useState({
+    show: false,
+    message: '',
+    type: ''
+  })
 
   const [assignedJob, setAssignedJob] = useState([])
   const navigate = useNavigate()
@@ -39,12 +45,66 @@ const TechnicianDashboard = () => {
     console.log("success:", result.success)
 
     if (result.success) {
-      console.log("navigate is executing")
-      navigate('/my-job')
+
+      setSnackbar({
+        show: true,
+        message: 'Job Accepted',
+        type: 'success'
+      })
+      setTimeout(() => {
+        navigate('/my-job')
+      }, 1500)
       console.log("navigated")
     }
   }
 
+
+  const handleRejectJob = async (id) => {
+    console.log("Rejecting job:", id)
+
+    const result = await reject_service(id)
+
+    console.log("Reject result:", result)
+
+    if (result.success) {
+
+      setSnackbar({
+        show: true,
+        type: "success",
+        message: result.data.message || "Job rejected successfully"
+      })
+
+      // Remove rejected job from frontend immediately
+      setAssignedJob(prevJobs =>
+        prevJobs.filter(job => job.id !== id)
+      )
+
+      // Hide snackbar after 2 seconds
+      setTimeout(() => {
+        setSnackbar({
+          show: false,
+          message: '',
+          type: ''
+        })
+      }, 2000)
+
+    } else {
+
+      setSnackbar({
+        show: true,
+        type: "error",
+        message: result.data?.error || "Failed to reject service"
+      })
+
+      setTimeout(() => {
+        setSnackbar({
+          show: false,
+          message: '',
+          type: ''
+        })
+      }, 2000)
+    }
+  }
 
   return (
     <>
@@ -74,7 +134,7 @@ const TechnicianDashboard = () => {
             </div>
           </div>
           <h3 className='text-lg font-semibold mt-4'>Active Jobs - NEED YOUR ACTION</h3>
-          <div className='flex lg:flex-row flex-col space-y-4 mt-4  justify-between gap-4 items-center'>
+          <div className='mt-4 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4'>
             {assignedJob?.map((job, index) => (
               <>
                 <div key={job.id} className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
@@ -112,9 +172,14 @@ const TechnicianDashboard = () => {
                       e.preventDefault()
                       handleAcceptJob(job.id)
                     }} className='bg-blue-900 hover:bg-blue-700 text-white font-bold p-2 pt-1 pb-1 rounded' >
-                      Accept job
+                      Accept
                     </button>
-
+                    <button onClick={(e) => {
+                      e.preventDefault()
+                      handleRejectJob(job.id)
+                    }} className='bg-red-700 hover:bg-red-500 text-white ms-2 font-bold p-2 pt-1 pb-1 rounded' >
+                      Reject
+                    </button>
                   </div>
                 </div>
               </>
@@ -193,6 +258,20 @@ const TechnicianDashboard = () => {
         </div>
 
       </div>
+      {snackbar.show && (
+        <div
+          className={`fixed bottom-5 right-5 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 ${snackbar.type === "success"
+            ? "bg-green-600"
+            : "bg-red-600"
+            }`}
+        >
+          <span>
+            {snackbar.type === "success" ? "✓" : "✕"}
+          </span>
+
+          <span>{snackbar.message}</span>
+        </div>
+      )}
     </>
   )
 }

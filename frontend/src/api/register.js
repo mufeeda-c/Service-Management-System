@@ -445,9 +445,9 @@ export async function get_service_admin(id) {
     }
 }
 
-export async function get_category_based_technician(category) {
+export async function get_category_based_technician(service_id) {
     try {
-        const result = await axios.get(`${api_url}/get_category_based_technician/${category}/`)
+        const result = await axios.get(`${api_url}/get_category_based_technician/${service_id}/`)
         return {
             success: true,
             data: result.data
@@ -521,8 +521,8 @@ export async function accept_job(id) {
     } catch (error) {
         console.log("error in accept_job", error.response)
         return {
-            success:false,
-            data:error.response?.data
+            success: false,
+            data: error.response?.data
         }
     }
 }
@@ -620,7 +620,7 @@ export async function deactivate_user(id) {
     }
 }
 
-export async function  get_services_technician() {
+export async function get_services_technician() {
     try {
         const result = await axios.get(`${api_url}/get_services_technician/`)
         return {
@@ -649,7 +649,7 @@ export async function get_inprogress_services_technician() {
             data: error.response?.data
         }
     }
-}export async function get_completed_services_technician() {
+} export async function get_completed_services_technician() {
     try {
         const result = await axios.get(`${api_url}/get_completed_services_technician/`)
         return {
@@ -680,3 +680,19 @@ export async function get_service_technician(id) {
         }
     }
 }
+
+export async function reject_service(service_id) {
+    try {
+        const result = await axios.put(`${api_url}/reject_service/${service_id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in reject service Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+};
