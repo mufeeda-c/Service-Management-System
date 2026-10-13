@@ -5,10 +5,10 @@ import { loginUser } from '../api/register'
 const Login = () => {
     const navigate = useNavigate()
 
-    const [userName, setUserName] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const [userNameError, setUserNameError] = useState('')
+    const [userEmailError, setUserEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const [loginError, setLoginError] = useState('')
 
@@ -22,10 +22,10 @@ const Login = () => {
         e.preventDefault()
 
         setLoginError('')
-        setUserNameError('')
+        setUserEmailError('')
         setPasswordError('')
 
-        const result = await loginUser(userName, password)
+        const result = await loginUser(email, password)
         if (result.success) {
             sessionStorage.setItem("user", result.data.user.username);
 
@@ -37,7 +37,7 @@ const Login = () => {
             })
 
             // Clear fields
-            setUserName('')
+            setEmail('')
             setPassword('')
 
             // Get role
@@ -54,8 +54,8 @@ const Login = () => {
         // Backend errors
         const errors = result.data
 
-        if (errors?.username) {
-            setUserNameError(errors.username[0])
+        if (errors?.email) {
+            setUserEmailError(errors.email[0])
         }
 
         if (errors?.password) {
@@ -84,27 +84,27 @@ const Login = () => {
                         <div className="mb-5">
 
                             <label
-                                htmlFor="username"
+                                htmlFor="email"
                                 className="block mb-2.5 text-sm font-medium text-heading"
                             >
-                                Your Username
+                                Your Email
                             </label>
 
                             <input
-                                type="text"
-                                id="username"
-                                value={userName}
+                                type="email"
+                                id="email"
+                                value={email}
                                 onChange={(e) => {
-                                    setUserName(e.target.value)
-                                    setUserNameError('')
+                                    setEmail(e.target.value)
+                                    setUserEmailError('')
                                 }}
                                 className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-xl focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
                                 placeholder="John"
                             />
 
-                            {userNameError && (
+                            {userEmailError && (
                                 <p className="text-red-500 text-sm mt-1">
-                                    {userNameError}
+                                    {userEmailError}
                                 </p>
                             )}
 

@@ -100,10 +100,10 @@ export async function registerTechnician(userName, phone, email, password, skill
     }
 }
 
-export async function loginUser(userName, password) {
+export async function loginUser(email, password) {
     try {
         const payload = {
-            "username": userName,
+            "email": email,
             "password": password
         }
         const result = await axios.post(`${api_url}/login/`, payload)

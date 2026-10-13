@@ -21,6 +21,12 @@ class CustomUser(AbstractUser):
         ('General', 'General'),
     )
 
+     # Allow duplicate usernames
+    username = models.CharField(
+        max_length=150,
+        unique=False,
+        blank=True
+    )
     role=models.CharField(choices=ROLE_CHOICES,blank=False)
     skill = models.CharField(
         max_length=30,
@@ -30,7 +36,8 @@ class CustomUser(AbstractUser):
     )
     online_status = models.BooleanField(default=True)
     phone = models.CharField(max_length=10, blank=False)
-    email=models.EmailField(unique=True)
+     # Each email address must be unique
+    email = models.EmailField(unique=True)
     address=models.TextField(blank=True)
     city=models.CharField(max_length=50,blank=True)
     pincode=models.CharField(max_length=6,blank=True)
@@ -38,6 +45,9 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     experience = models.PositiveIntegerField(blank=True, null=True)
     about=models.TextField(blank=True, null=True)
+     # Use email instead of username for login
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
     
     
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 //  import RequestTable from '../components/RequestTable';
-import { accept_job, Technician, reject_service, technician_assigned_job, set_offline, set_online } from '../api/register'
+import { accept_job, Technician, reject_service,get_inprogress_services_technician, get_completed_services_technician,technician_assigned_job,get_inprogress_services, set_offline, set_online } from '../api/register'
 import SideBarTechnician from '../components/SideBarTechnician'
 const TechnicianDashboard = () => {
   const [services, setServices] = useState([])
@@ -15,14 +15,22 @@ const TechnicianDashboard = () => {
   })
 
   const [assignedJob, setAssignedJob] = useState([])
+  const [inProgressJob, setInProgressJob] = useState([])
+  const [completedJob, setCompletedJob] = useState([])
   const navigate = useNavigate()
   async function getData() {
     const result = await Technician()
     console.log(result.data)
     setUser(result.data)
     const assignedJob = await technician_assigned_job(result?.data.id)
+    const inProgressJob = await get_inprogress_services_technician(result?.data.id, "in progress")
+    const completedJob = await get_completed_services_technician(result?.data.id, "completed")
+    console.log("in progress job", inProgressJob.data)
     console.log("assigned job", assignedJob.data)
+    console.log("completed job", completedJob.data)
     setAssignedJob(assignedJob.data)
+    setInProgressJob(inProgressJob.data)
+    setCompletedJob(completedJob.data)
   }
 
   useEffect(() => {
@@ -134,17 +142,14 @@ const TechnicianDashboard = () => {
               <h3 className='text-sm text-gray-500 font-semibold mb-2'>SKILL</h3>
               <p className='text-2xl text-blue-900 font-bold'>{user.skill}</p>
             </div>
-            <div className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
-              <h3 className='text-sm text-gray-500 font-semibold mb-2'>RATING </h3>
-              <p className='text-2xl text-yellow-500 font-bold'>10</p>
-            </div>
+            
             <div className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
               <h3 className='text-sm text-gray-500 font-semibold mb-2'>ACTIVE </h3>
-              <p className='text-2xl text-blue-500 font-bold'>10</p>
+              <p className='text-2xl text-blue-500 font-bold'>{inProgressJob.length}</p>
             </div>
             <div className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
               <h3 className='text-sm text-gray-500 font-semibold mb-2'>COMPLETED </h3>
-              <p className='text-2xl text-green-700 font-bold'>10</p>
+              <p className='text-2xl text-green-700 font-bold'>{completedJob.length}</p>
             </div>
           </div>
           <h3 className='text-lg font-semibold mt-4'>Active Jobs - NEED YOUR ACTION</h3>

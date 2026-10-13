@@ -66,12 +66,12 @@ def registerUser(request):
 def loginUser(request):
     serializer=loginSerializer(data=request.data)
     if serializer.is_valid():
-        username=serializer.validated_data['username']
+        email=serializer.validated_data['email']
         password=serializer.validated_data['password']
         
         user=authenticate(
-            request,    
-            username=username,
+            request,
+            email=email,
             password=password
         )
         if user is not None:
