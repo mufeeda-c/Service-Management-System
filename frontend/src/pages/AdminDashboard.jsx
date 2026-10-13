@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {getAvailableCustomer, getAllPendingServices ,getAllInProgressServices,getAllCompletedServices, getAvailableTech} from '../api/register'
+import {getAvailableCustomer, getAllPendingServices ,getAllInProgressServices,getAllCompletedServices, getAvailableTech, getTech} from '../api/register'
 import SideBarAdmin from '../components/SideBarAdmin'
 const AdminDashboard = () => {
   const [pendingServices, setPendingServices] = useState([])
@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [availableTech,setavailableTech]=useState([])
   const [availableCustomer,setAvailableCustomer]=useState([])
   const [username,setUsername]=useState("")
+  const [tech,setTech]=useState([])
 
   const navigate = useNavigate()
 
@@ -23,6 +24,8 @@ const AdminDashboard = () => {
       setCompleted(completed.data)
       const availableTech=await getAvailableTech()
       setavailableTech(availableTech.data)
+      const tech=await getTech()
+      setTech(tech.data)
       const availableCustomer=await getAvailableCustomer()
       setAvailableCustomer(availableCustomer.data)
       const name = sessionStorage.getItem("user");
@@ -63,7 +66,7 @@ const AdminDashboard = () => {
             </div>
             <div className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
               <h3 className='text-sm text-gray-500 font-semibold mb-2'>TECHNICIANS</h3>
-              <p className='text-2xl text-blue-900 font-bold'>{availableTech.length}</p>
+              <p className='text-2xl text-blue-900 font-bold'>{tech.length}</p>
             </div>
           </div>
 

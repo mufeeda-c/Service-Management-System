@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import  reject_service ,get_service_technician,get_completed_services_technician,get_inprogress_services_technician,get_services_technician,activate_user,deactivate_user ,get_all_technician,get_all_customer,get_all_admins, get_all_users ,accept_job ,technician_assigned_job,cancel_request,getAllServices,assign_technician, get_category_based_technician ,get_service_admin,getAvailableCustomer,getAvailableTech,getAllCompletedServices,getAllInProgressServices,getAllPendingServices,get_skills,Technician ,registerUser,loginUser,hello, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services
+from .views import create_bill,get_bill , getTech, set_online, reject_service ,get_service_technician,get_completed_services_technician,get_inprogress_services_technician,get_services_technician,activate_user,deactivate_user ,get_all_technician,get_all_customer,get_all_admins, get_all_users ,accept_job, set_offline ,technician_assigned_job,cancel_request,getAllServices,assign_technician, get_category_based_technician ,get_service_admin,getAvailableCustomer,getAvailableTech,getAllCompletedServices,getAllInProgressServices,getAllPendingServices,get_skills,Technician ,registerUser,loginUser,user, csrfToken ,logoutUser,book_service, delete_service ,edit_service,get_services,get_service, get_inprogress_services ,get_completed_services ,get_pending_services,get_assigned_services, update_profile
 
 urlpatterns = [
     path('',registerUser ),
     path('login/',loginUser),
-    path('hello/',hello),
+    path('user/',user),
     path('logout/', logoutUser),
     path('book_service/',book_service),
     path('get_services/',get_services),
@@ -22,6 +22,7 @@ urlpatterns = [
     path('getAllInProgressServices/',getAllInProgressServices),
     path('getAllCompletedServices/',getAllCompletedServices),
     path('getAvailableTech/',getAvailableTech),
+    path('getTech/',getTech),
     path('getAvailableCustomer/',getAvailableCustomer),
     path('get_service_admin/<int:id>/',get_service_admin),
     path('get_category_based_technician/<int:service_id>/',get_category_based_technician),
@@ -40,7 +41,20 @@ urlpatterns = [
     path('get_inprogress_services_technician/',get_inprogress_services_technician),
     path('get_completed_services_technician/', get_completed_services_technician),
     path('get_service_technician/<int:id>/',get_service_technician),
-    path('reject_service/<int:service_id>/',reject_service)
+    path('reject_service/<int:service_id>/',reject_service),
+    path('update_profile/', update_profile),
+    path('set_online/<int:id>/', set_online),
+    path('set_offline/<int:id>/', set_offline),
+    path(
+        "bills/create/<int:service_id>/",
+        create_bill,
+        name="create_bill"
+    ),
+    path(
+        "bills/service/<int:service_id>/",
+        get_bill,
+        name="get_bill"
+    ),
 ]
 
 

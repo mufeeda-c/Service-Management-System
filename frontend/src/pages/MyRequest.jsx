@@ -172,7 +172,7 @@ const MyRequest = () => {
                                     {services?.map((service, index) => (
 
                                         <tr key={index}>
-                                            <td className='border border-gray-300 p-2'>{service.id}</td>
+                                            <td className='border border-gray-300 p-2'>{index+1}</td>
                                             <td className='border border-gray-300 p-2'>{service.category}</td>
                                             <td className='hidden lg:table-cell border border-gray-300 p-2'>{service.description}</td>
                                             <td className='border border-gray-300 p-2'>

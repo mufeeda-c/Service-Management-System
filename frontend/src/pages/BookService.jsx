@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { book_service, logoutUser, fetchSkills } from '../api/register'
+import { book_service,  fetchSkills } from '../api/register'
 import SideBar from '../components/SideBar'
 
 const BookService = () => {
@@ -32,6 +32,11 @@ const BookService = () => {
         async function getSkill() {
             const skills = await fetchSkills()
             setSkills(skills.data)
+            console.log(skills.data)
+            if(skills.data.length>0){
+                setCategory(skills.data[0].value)
+            }
+            
         }
         getSkill()
     }, [])
@@ -47,7 +52,7 @@ const BookService = () => {
                 message: 'Service booked successfully',
                 type: 'success'
             })
-
+            
             setDescription('')
             setCategory('')
             setAddress('')

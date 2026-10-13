@@ -1,4 +1,6 @@
-from .models import CustomUser,ServiceModel
+from decimal import Decimal
+
+from .models import Bill, BillItem, CustomUser,ServiceModel
 from rest_framework import serializers
 
 class registerSerializer(serializers.ModelSerializer):
@@ -57,4 +59,66 @@ class bookServiceSerializer(serializers.ModelSerializer):
 class userSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['role','phone','email','username','skill','id','date_joined','is_active']
+        fields=['role','phone','email','username','skill','id','date_joined','is_active','address','city','pincode','photo','experience','about']
+
+class BillItemSerializer(serializers.ModelSerializer):
+    subtotal = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        read_only=True
+    )
+
+    class Meta:
+        model = BillItem
+        fields = [
+            "id",
+            "description",
+            "quantity",
+            "price",
+            "subtotal",
+        ]
+
+    def validate_description(self, value):
+        if not value.strip():
+            raise serializers.ValidationError(
+                "Description cannot be empty."
+            )
+        return value.strip()
+
+    def validate_quantity(self, value):
+        if value < 1:
+            raise serializers.ValidationError(
+                "Quantity must be at least 1."
+            )
+        return value
+
+    def validate_price(self, value):
+        if value < Decimal("0.00"):
+            raise serializers.ValidationError(
+                "Price cannot be negative."
+            )
+        return value
+
+
+class BillSerializer(serializers.ModelSerializer):
+    items = BillItemSerializer(many=True, read_only=True)
+    service_id = serializers.IntegerField(
+        source="service.id",
+        read_only=True
+    )
+    technician_id = serializers.IntegerField(
+        source="technician.id",
+        read_only=True
+    )
+
+    class Meta:
+        model = Bill
+        fields = [
+            "id",
+            "service_id",
+            "technician_id",
+            "items",
+            "total_amount",
+            "created_at",
+            "updated_at",
+        ]

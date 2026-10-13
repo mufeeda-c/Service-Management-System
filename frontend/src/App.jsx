@@ -21,6 +21,12 @@ import ViewRequest from './pages/ViewRequest'
 import MyJob from './pages/MyJob'
 import ViewServiceTechnician from './pages/ViewServiceTechnician'
 import AssignTechnician from './pages/AssignTechnician'
+import AdminProfile from './pages/AdminProfile'
+import TechnicianProfile from './pages/TechnicianProfile'
+import CustomerProfile from './pages/CustomerProfile'
+import BillCreation from './pages/CreateBill'
+import ViewBill from './pages/ViewBill'
+import ViewBillCustomer from './pages/ViewBillCustomer'
 
 function App() {
   useEffect(() => {
@@ -48,9 +54,18 @@ function App() {
           <Route path="/technicians" element={<AllTechnician />} />
           <Route path="/create-admin" element={<CreateAdmin />} />
           <Route path="/view-request" element={<ViewRequest />} />
-          <Route path='/view-service-technician/:id' element={<ViewServiceTechnician/>}/>
+          <Route path='/view-service-technician/:id' element={<ViewServiceTechnician />} />
           <Route path='/my-job' element={<MyJob />} />
-          <Route path="/AssignTechnician/:id" element={<AssignTechnician/>}/>
+          <Route path="/AssignTechnician/:id" element={<AssignTechnician />} />
+          <Route path='/admin-profile' element={<AdminProfile />} />
+          <Route path='/technician-profile' element={<TechnicianProfile />} />
+          <Route path='/customer-profile' element={<CustomerProfile />} />
+          <Route path='/create-bill/:id' element={<BillCreation />} />
+          <Route
+            path="/view-bill/:serviceId"
+            element={<ViewBill />}
+          />
+          <Route path='/view-bill/customer/:serviceId' element={<ViewBillCustomer />} />
           <Route path='*' element={<h1>404 Not Found</h1>} />
         </Routes>
       </BrowserRouter>

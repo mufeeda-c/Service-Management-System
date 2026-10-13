@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 //  import RequestTable from '../components/RequestTable';
-import { accept_job, Technician, reject_service, technician_assigned_job } from '../api/register'
+import { accept_job, Technician, reject_service, technician_assigned_job, set_offline, set_online } from '../api/register'
 import SideBarTechnician from '../components/SideBarTechnician'
 const TechnicianDashboard = () => {
   const [services, setServices] = useState([])
@@ -16,26 +16,34 @@ const TechnicianDashboard = () => {
 
   const [assignedJob, setAssignedJob] = useState([])
   const navigate = useNavigate()
+  async function getData() {
+    const result = await Technician()
+    console.log(result.data)
+    setUser(result.data)
+    const assignedJob = await technician_assigned_job(result?.data.id)
+    console.log("assigned job", assignedJob.data)
+    setAssignedJob(assignedJob.data)
+  }
 
   useEffect(() => {
     setUser([])
     setServices([])
     setAssignedJob([])
-    async function getData() {
-      const result = await Technician()
-      console.log(result.data)
-      setUser(result.data)
-      const assignedJob = await technician_assigned_job(result?.data.id)
-      console.log("assigned job", assignedJob.data)
-      setAssignedJob(assignedJob.data)
-    }
+
     getData()
     const name = sessionStorage.getItem("user");
     setUsername(name)
 
   }, [])
 
-
+  async function handleActivate(id) {
+    const result = await set_online(id)
+    getData()
+  }
+  async function handleDeactivate(id) {
+    const result = await set_offline(id)
+    getData()
+  }
 
 
   const handleAcceptJob = async (id) => {
@@ -70,7 +78,7 @@ const TechnicianDashboard = () => {
 
       setSnackbar({
         show: true,
-        type: "success",
+        type: "error",
         message: result.data.message || "Job rejected successfully"
       })
 
@@ -110,10 +118,16 @@ const TechnicianDashboard = () => {
     <>
       <div className='flex md:flex-row flex-col h-screen overflow-hidden'>
         <SideBarTechnician />
-        <div className='bg-gray-200 border border-gray-300 w-full  p-8 overflow-y-auto'>
+        <div className='bg-gray-200 border border-gray-300 w-full h-screen  p-8 overflow-y-auto'>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-2xl font-bold mb-4'>Welcome Back {username} !</h2>
 
+            <button className={` ${user.online_status ? "text-green-900 bg-green-200 hover:bg-green-300" : "text-red-900 bg-red-200 hover:bg-red-300 "} text-center pl-3 pr-3 rounded-xl cursor-pointer`}
+              onClick={() =>
+                user.online_status
+                  ? handleDeactivate(user.id) : handleActivate(user.id)
+              }
+            >{user.online_status ? "Online" : "Offline"}</button>
           </div>
           <div className='flex sm:flex-row flex-col space-y-4  justify-between gap-4 items-center'>
             <div className='bg-white p-4 rounded-md w-full shadow-md mb-0'>
@@ -245,8 +259,6 @@ const TechnicianDashboard = () => {
                         }} className='bg-yellow-300 m-1 hover:bg-yellow-900 hover:text-white text-yellow-900 font-bold py-1 px-2 rounded'>
                           Edit
                         </button>
-
-
                       </td>
                     </tr>
                   ))}

@@ -1,17 +1,23 @@
+from django.utils import timezone
+from decimal import Decimal
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
+
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator 
 
-from .serializers import registerSerializer,loginSerializer,bookServiceSerializer,userSerializer
+from .serializers import BillItemSerializer, BillSerializer, registerSerializer,loginSerializer,bookServiceSerializer,userSerializer
 from django.contrib.auth import authenticate,login,logout
-from .models import ServiceModel
+from .models import Bill, BillItem, ServiceModel
 from .models import CustomUser
 from .models import RejectedService
+
+from django.db import transaction
 
 # Create your views here.
 
@@ -112,19 +118,39 @@ def logoutUser(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def hello(request):
+def user(request):
     print(request.user)
-    return Response({"message":request.user.username})
+    return Response({
+                "id": request.user.id,
+                "username": request.user.username,
+                "email": request.user.email,
+                "phone": request.user.phone,
+                "skill": request.user.skill,
+                "about": request.user.about,
+                "experience": request.user.experience,
+                "pincode": request.user.pincode,
+                "photo": request.user.photo.url if request.user.photo else None,
+                "address": request.user.address,
+                "city": request.user.city,
+                "role": request.user.role,
+        })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def Technician(request):
+    print("request.user", request.user.about)
     return Response({
         "id": request.user.id,
         "username": request.user.username,
         "email": request.user.email,
         "phone": request.user.phone,
         "skill": request.user.skill,
+        "about": request.user.about,
+        "experience": request.user.experience,
+        "pincode": request.user.pincode,
+        "photo": request.user.photo.url if request.user.photo else None,
+        "is_active": request.user.is_active,
+        "online_status": request.user.online_status
     })
 
 @api_view(['POST'])
@@ -265,10 +291,15 @@ def getAllCompletedServices(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAvailableTech(request):
+    tech=CustomUser.objects.filter(role="technician",online_status=True)
+    serializer=userSerializer(tech,many=True)
+    return Response(serializer.data)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTech(request):
     tech=CustomUser.objects.filter(role="technician")
     serializer=userSerializer(tech,many=True)
     return Response(serializer.data)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAvailableCustomer(request):
@@ -300,7 +331,7 @@ def get_category_based_technician(request,service_id):
         service=service
     ).values_list('technician_id', flat=True)
         
-    tech=CustomUser.objects.filter(role="technician",skill=service.category, is_active=True).exclude(
+    tech=CustomUser.objects.filter(role="technician",skill=service.category, is_active=True,online_status=True).exclude(
         id__in=rejected_ids
     )
     serializer=userSerializer(tech,many=True)
@@ -316,6 +347,7 @@ def assign_technician(request,id,techid):
             role="technician"
         )
         service.status="assigned"
+        service.assigned_date=timezone.now()
         service.technician=technician
         service.save()
         serializer=bookServiceSerializer(service)
@@ -332,6 +364,7 @@ def cancel_request(request,id):
     try:
         service=ServiceModel.objects.get(id=id,is_delete= False)
         service.status="cancelled"
+        service.cancelled_date=timezone.now()
         service.save()
         serializer=bookServiceSerializer(service)
         return Response(serializer.data,status=status.HTTP_200_OK)
@@ -361,6 +394,7 @@ def accept_job(request,id):
     try:
         service=ServiceModel.objects.get(id=id,is_delete= False)
         service.status="in progress"
+        service.inprogress_date=timezone.now()
         service.save()
         serializer=bookServiceSerializer(service)
         return Response(serializer.data,status=status.HTTP_200_OK)
@@ -506,6 +540,7 @@ def reject_service(request, service_id):
 
     # Make job available again
     service.status = 'pending'
+    service.assigned_date=None
 
     service.save()
 
@@ -513,3 +548,171 @@ def reject_service(request, service_id):
         {"message": "Service rejected successfully"},
         status=status.HTTP_200_OK
     )
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    user = request.user
+    serializer = userSerializer(user,data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def set_online(request,id):
+    try:
+        user=CustomUser.objects.get(id=id)
+        user.online_status=1
+        user.save()
+        serializer=userSerializer(user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+        
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def set_offline(request,id):
+    try:
+        user=CustomUser.objects.get(id=id)
+        user.online_status=0
+        user.save()
+        serializer=userSerializer(user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error":str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
+        
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_bill(request, service_id):
+    service = ServiceModel.objects.filter(
+        id=service_id,
+        technician=request.user
+    ).first()
+    
+    if service is None:
+        return Response(
+            {"error": "Service not found or not assigned to you."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    items_data = request.data.get("items")
+
+    if not isinstance(items_data, list) or not items_data:
+        return Response(
+            {"error": "Add at least one bill item."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Validate all items before saving anything.
+    item_serializer = BillItemSerializer(
+        data=items_data,
+        many=True
+    )
+
+    if not item_serializer.is_valid():
+        return Response(
+            {"items": item_serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if Bill.objects.filter(service=service).exists():
+        return Response(
+            {"error": "A bill already exists for this service."},
+            status=status.HTTP_409_CONFLICT
+        )
+
+    try:
+        with transaction.atomic():
+            bill = Bill.objects.create(
+                service=service,
+                technician=request.user,
+                total_amount=Decimal("0.00")
+            )
+
+            total = Decimal("0.00")
+
+            for item_data in item_serializer.validated_data:
+                quantity = item_data["quantity"]
+                price = item_data["price"]
+                subtotal = Decimal(quantity) * price
+
+                BillItem.objects.create(
+                    bill=bill,
+                    description=item_data["description"],
+                    quantity=quantity,
+                    price=price,
+                    subtotal=subtotal
+                )
+
+                total += subtotal
+
+            bill.total_amount = total
+            bill.save(update_fields=["total_amount", "updated_at"])
+            service.completed_date=timezone.now()
+            service.status="completed"
+            service.save()
+
+    except Exception:
+        # The transaction rolls back if any database save fails.
+        return Response(
+            {"error": "Unable to save the bill. Please try again."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    return Response(
+        {
+            "message": "Bill created successfully.",
+            "bill": BillSerializer(bill).data
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_bill(request, service_id):
+    service = ServiceModel.objects.filter(
+        id=service_id
+    ).first()
+
+    if service is None:
+        return Response(
+            {"error": "Service not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    is_technician = service.technician_id == request.user.id
+    is_customer = service.customer_id == request.user.id
+    is_admin = getattr(request.user, "role", None) == "admin"
+
+    if not (is_technician or is_customer or is_admin):
+        return Response(
+            {"error": "You do not have permission to view this bill."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    bill = Bill.objects.filter(
+        service=service
+    ).prefetch_related("items").first()
+
+    if bill is None:
+        return Response(
+            {"error": "No bill has been created for this service."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    return Response(BillSerializer(bill).data)

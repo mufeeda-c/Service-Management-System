@@ -137,16 +137,16 @@ export async function logoutUser() {
     }
 }
 
-export async function hello() {
+export async function user() {
     try {
-        const res = await axios.get(`${api_url}/hello/`)
+        const result = await axios.get(`${api_url}/user/`)
         return {
             success: true,
             data: result.data
         };
     }
     catch (error) {
-        console.log("error in hello catch", error.response);
+        console.log("error in user catch", error.response);
         return {
             success: false,
             data: error.response?.data
@@ -411,7 +411,21 @@ export async function getAvailableTech() {
         }
     }
 }
-
+export async function getTech() {
+    try {
+        const result = await axios.get(`${api_url}/getTech/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in getTech Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
 export async function getAvailableCustomer() {
     try {
         const result = await axios.get(`${api_url}/getAvailableCustomer/`)
@@ -696,3 +710,127 @@ export async function reject_service(service_id) {
         }
     }
 };
+
+export async function update_profile_technician(about, experience, pincode, profilePhoto) {
+    try {
+        const formData = new FormData()
+        if (profilePhoto) {
+            formData.append('photo', profilePhoto)
+        }
+        formData.append('about', about)
+        formData.append('experience', experience)
+        formData.append('pincode', pincode)
+        const result = await axios.put(`${api_url}/update_profile/`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+
+        })
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in update_profile", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function update_profile(address, city, pincode, profilePhoto) {
+    try {
+        const formData = new FormData()
+        formData.append('address', address)
+        formData.append('city', city)
+        formData.append('pincode', pincode)
+        if (profilePhoto) {
+            formData.append('photo', profilePhoto)
+        }
+        const result = await axios.put(`${api_url}/update_profile/`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+
+        })
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in update_profile", error.response)
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function set_online(id) {
+    try {
+        const result = await axios.put(`${api_url}/set_online/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in set_online Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+
+export async function set_offline(id) {
+    try {
+        const result = await axios.put(`${api_url}/set_offline/${id}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in set_offline Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function create_bill(serviceId, items) {
+    try {
+        return  await axios.post(
+                `${api_url}/bills/create/${serviceId}/`,
+                {
+                    items: items.map((item) => ({
+                        description: item.description.trim(),
+                        quantity: Number(item.quantity),
+                        price: Number(item.price).toFixed(2),
+                    })),
+                }
+            );
+        
+    } catch (error) {
+        console.log("error in set_offline Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}
+export async function view_bill(serviceId) {
+    try {
+        const result=await axios.get(`${api_url}/bills/service/${serviceId}/`)
+        return {
+            success: true,
+            data: result.data
+        }
+    } catch (error) {
+        console.log("error in set_offline Catch ", error.response);
+        return {
+            success: false,
+            data: error.response?.data
+        }
+    }
+}

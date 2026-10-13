@@ -3,7 +3,7 @@ import { FaEye } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import { useNavigate } from 'react-router-dom'
-import { hello, delete_service, get_services, get_pending_services, get_completed_services, get_inprogress_services, get_assigned_services } from '../api/register';
+import { user, delete_service, get_services, get_pending_services, get_completed_services, get_inprogress_services, get_assigned_services } from '../api/register';
 import SideBar from '../components/SideBar';
 // import RequestTable from '../components/RequestTable';
 const CustomerDashboard = () => {
@@ -148,7 +148,7 @@ const CustomerDashboard = () => {
                                     {services?.map((service, index) => (
 
                                         <tr key={index}>
-                                            <td className='border border-gray-300 p-2'>{service.id}</td>
+                                            <td className='border border-gray-300 p-2'>{index+1}</td>
                                             <td className='border border-gray-300 p-2'>{service.category}</td>
                                             <td className='hidden lg:table-cell border border-gray-300 p-2'>{service.description}</td>
                                             <td className='border border-gray-300 p-2'>

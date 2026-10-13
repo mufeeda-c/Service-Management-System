@@ -26,7 +26,7 @@ const AllTechnician = () => {
     }
     async function handleDeactivate(id) {
         const result = await deactivate_user(id)
-        getData()
+        getData()   
     }
 
     return (
